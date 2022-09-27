@@ -1,0 +1,528 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>bigint: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">less08/bigint/math.go (95.7%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package bigint
+
+import (
+        "errors"
+        "strconv"
+        "strings"
+)
+
+type Bigint struct {
+        Value string
+}
+
+var ErrorBadInput = errors.New("bad input, please input only number")
+
+// deleteZeros...
+func deleteZeros(input string) string <span class="cov8" title="1">{
+        var result = ""
+        check := false
+        if strings.HasPrefix(input, "-") </span><span class="cov8" title="1">{
+                check = true
+                input = input[1:]
+        }</span>
+        <span class="cov8" title="1">input = strings.TrimPrefix(input, "+")
+        for _, item := range input </span><span class="cov8" title="1">{
+                if len(result) == 0 &amp;&amp; item == '0' </span><span class="cov8" title="1">{
+                        continue</span>
+                }
+                <span class="cov8" title="1">result += string(item)</span>
+        }
+        <span class="cov8" title="1">if check &amp;&amp; result != "0" </span><span class="cov8" title="1">{
+                result = "-" + result
+        }</span>
+        <span class="cov8" title="1">return result</span>
+}
+
+func validateInput(input string) (bool, string) <span class="cov8" title="1">{
+        allowed := "1234567890"
+        var err bool
+        start := 0
+        if strings.HasPrefix(input, "+") || strings.HasPrefix(input, "-") </span><span class="cov8" title="1">{
+                start = 1
+        }</span>
+
+        <span class="cov8" title="1">arr := strings.Split(input[start:], "")
+        for _, v := range arr </span><span class="cov8" title="1">{
+                if !strings.Contains(allowed, v) </span><span class="cov0" title="0">{
+                        err = true
+                }</span>
+        }
+
+        <span class="cov8" title="1">return err, input</span>
+}
+
+func NewInt(num string) (Bigint, error) <span class="cov8" title="1">{
+        err, num := validateInput(num)
+        if err </span><span class="cov0" title="0">{
+                return Bigint{Value: num}, ErrorBadInput
+        }</span>
+        <span class="cov8" title="1">num = deleteZeros(num)
+        return Bigint{Value: num}, nil</span>
+}
+
+func (z *Bigint) Set(num string) error <span class="cov8" title="1">{
+        err, num := validateInput(num)
+        if err </span><span class="cov0" title="0">{
+                return ErrorBadInput
+        }</span>
+        <span class="cov8" title="1">num = deleteZeros(num)
+        z.Value = num
+        return nil</span>
+}
+
+//Add ...
+func Add(first, second Bigint) (r Bigint) <span class="cov8" title="1">{
+        var err error
+        first, err = NewInt(first.Value)
+        if err != nil </span><span class="cov0" title="0">{
+                panic("Error input1!")</span>
+        }
+        <span class="cov8" title="1">second, err = NewInt(second.Value)
+        if err != nil </span><span class="cov0" title="0">{
+                panic("Error input2!")</span>
+        }
+        <span class="cov8" title="1">num1 := first.Value
+        num2 := second.Value
+        var result string
+        if num1 == "" </span><span class="cov8" title="1">{
+                r.Value = num2
+                return
+        }</span>
+        <span class="cov8" title="1">if num2 == "" </span><span class="cov0" title="0">{
+                r.Value = num1
+                return
+        }</span>
+        <span class="cov8" title="1">if num1[0] != '-' &amp;&amp; num2[0] != '-' </span><span class="cov8" title="1">{
+                result = add(num1, num2)
+                r.Value = result
+                return
+        }</span>
+        <span class="cov8" title="1">if num1[0] == '-' &amp;&amp; num2[0] == '-' </span><span class="cov8" title="1">{
+                arr1 := strings.Split(num1, "-")
+                str1 := strings.Join(arr1, "")
+                arr2 := strings.Split(num2, "-")
+                str2 := strings.Join(arr2, "")
+                result = add(str1, str2)
+                result = "-" + result
+                r.Value = result
+                return
+        }</span> //-123 13
+        <span class="cov8" title="1">if num1[0] == '-' || num2[0] == '-' </span><span class="cov8" title="1">{
+                pre1 := num1
+                pre2 := num2
+                if num1[0] == '-' </span><span class="cov8" title="1">{
+                        num1 = num1[1:]
+                }</span>
+                <span class="cov8" title="1">if num2[0] == '-' </span><span class="cov8" title="1">{
+                        num2 = num2[1:]
+                }</span>
+                <span class="cov8" title="1">result = sub(num1, num2)
+                if (len(num1) &gt; len(num2) ||
+                        len(num1) == len(num2) &amp;&amp;
+                                int(num1[0]) &gt; int(num2[0])) &amp;&amp;
+                        pre1[0] == '-' </span><span class="cov8" title="1">{
+                        result = "-" + result
+                }</span>
+                <span class="cov8" title="1">if (len(num2) &gt; len(num1) ||
+                        len(num2) == len(num1) &amp;&amp;
+                                int(num2[0]) &gt; int(num1[0])) &amp;&amp;
+                        pre2[0] == '-' </span><span class="cov8" title="1">{
+                        result = "-" + result
+                }</span>
+        }
+        <span class="cov8" title="1">r.Value = result
+        return</span>
+}
+
+//Subtraction ...
+func Sub(a, b Bigint) (c Bigint) <span class="cov8" title="1">{
+        son1 := a.Value
+        son2 := b.Value
+        var natija string
+        if son1[0] != '-' &amp;&amp; son2[0] != '-' </span><span class="cov8" title="1">{
+                natija = sub(son1, son2)
+                if len(son2) &gt; len(son1) || (len(son2) == len(son1) &amp;&amp; int(son2[0]) &gt; int(son1[0])) </span><span class="cov8" title="1">{
+                        natija = "-" + natija
+                }</span>
+                <span class="cov8" title="1">c.Value = natija
+                return</span>
+        }
+        <span class="cov8" title="1">if son1[0] == '-' &amp;&amp; son2[0] == '-' </span><span class="cov8" title="1">{
+                pre1 := son1
+                arr1 := strings.Split(son1, "-")
+                str1 := strings.Join(arr1, "")
+                arr2 := strings.Split(son2, "-")
+                str2 := strings.Join(arr2, "")
+                natija = sub(str1, str2)
+                if (len(son1) &gt; len(son2) || (len(son1) == len(son2) &amp;&amp; int(son2[0]) &gt; int(son1[0]))) &amp;&amp; pre1[0] == '-' </span><span class="cov8" title="1">{
+                        natija = "-" + natija
+                }</span>
+                <span class="cov8" title="1">c.Value = natija
+                return</span>
+        }
+        <span class="cov8" title="1">if son1[0] == '-' || son2[0] == '-' </span><span class="cov8" title="1">{
+                pre1 := son1
+                if son1[0] == '-' </span><span class="cov8" title="1">{
+                        arr1 := strings.Split(son1, "-")
+                        str1 := strings.Join(arr1, "")
+                        son1 = str1
+                }</span>
+                <span class="cov8" title="1">if son2[0] == '-' </span><span class="cov8" title="1">{
+                        arr2 := strings.Split(son2, "-")
+                        str2 := strings.Join(arr2, "")
+                        son2 = str2
+                }</span>
+                <span class="cov8" title="1">natija = add(son1, son2)
+                if pre1[0] == '-' </span><span class="cov8" title="1">{
+                        natija = "-" + natija
+                }</span>
+        }
+        <span class="cov8" title="1">c.Value = natija
+        return</span>
+}
+
+func add(a, b string) (result string) <span class="cov8" title="1">{
+        arr1 := strings.Split(a, "")
+        arr2 := strings.Split(b, "")
+        var res []string
+        if len(arr1) &gt; len(arr2) </span><span class="cov8" title="1">{
+                res = arr1
+        }</span> else<span class="cov8" title="1"> if len(arr1) == len(arr2) </span><span class="cov8" title="1">{
+                res = arr1
+        }</span> else<span class="cov8" title="1"> {
+                res = arr2
+        }</span>
+        <span class="cov8" title="1">var sl1 = make([]int64, len(res))
+        var sl2 = make([]int64, len(res))
+        for i := 0; i &lt; len(arr1); i++ </span><span class="cov8" title="1">{
+                n1, _ := strconv.ParseInt(arr1[len(arr1)-1-i], 0, 8)
+                sl1[len(sl1)-1-i] = n1
+        }</span>
+        <span class="cov8" title="1">for i := 0; i &lt; len(arr2); i++ </span><span class="cov8" title="1">{
+                n2, _ := strconv.ParseInt(arr2[len(arr2)-1-i], 0, 8)
+                sl2[len(sl2)-1-i] = n2
+        }</span>
+        <span class="cov8" title="1">var r0, r1, r2 int64
+        for j := (len(sl1) - 1); j &gt; -1; j-- </span><span class="cov8" title="1">{
+                son1 := sl1[j] + sl2[j] + r0
+                r1 = son1 / 10
+                r2 = son1 % 10
+                r0 = r1
+                s := strconv.FormatInt(r2, 10)
+                result += s
+                if j == 0 &amp;&amp; r1 != 0 </span><span class="cov0" title="0">{
+                        result += strconv.FormatInt(r1, 10)
+                }</span>
+        }
+        <span class="cov8" title="1">rune_arr := []rune(result)
+        var rev []rune
+        for i := len(rune_arr) - 1; i &gt;= 0; i-- </span><span class="cov8" title="1">{
+                rev = append(rev, rune_arr[i])
+        }</span>
+        <span class="cov8" title="1">result = string(rev)
+        return</span>
+
+}
+
+func sub(str1, str2 string) (natija string) <span class="cov8" title="1">{
+        if len(str2) &gt; len(str1) </span><span class="cov8" title="1">{
+                str1, str2 = str2, str1
+        }</span>
+        <span class="cov8" title="1">if len(str2) == len(str1) </span><span class="cov8" title="1">{
+                for i := 0; i &lt; len(str1); i++ </span><span class="cov8" title="1">{
+                        if int(str2[i]) &gt; int(str1[i]) </span><span class="cov8" title="1">{
+                                str1, str2 = str2, str1
+                                break</span>
+                        }
+                }
+        }
+        <span class="cov8" title="1">arr1 := strings.Split(str1, "")
+        arr2 := strings.Split(str2, "")
+        var res []string
+        if len(arr1) &gt; len(arr2) </span><span class="cov8" title="1">{
+                res = arr1
+        }</span> else<span class="cov8" title="1"> if len(arr1) == len(arr2) </span><span class="cov8" title="1">{
+                res = arr1
+        }</span> else<span class="cov0" title="0"> {
+                res = arr2
+        }</span>
+        <span class="cov8" title="1">var sl1 = make([]int64, len(res))
+        var sl2 = make([]int64, len(res))
+        for i := 0; i &lt; len(arr1); i++ </span><span class="cov8" title="1">{
+                n1, _ := strconv.ParseInt(arr1[len(arr1)-1-i], 0, 8)
+                sl1[len(sl1)-1-i] = n1
+        }</span>
+        <span class="cov8" title="1">for i := 0; i &lt; len(arr2); i++ </span><span class="cov8" title="1">{
+                n2, _ := strconv.ParseInt(arr2[len(arr2)-1-i], 0, 8)
+                sl2[len(sl2)-1-i] = n2
+        }</span>
+        <span class="cov8" title="1">var s string
+        var ayirma int64
+        for j := (len(sl1) - 1); j &gt; -1; j-- </span><span class="cov8" title="1">{
+                if sl1[j] &gt;= sl2[j] </span><span class="cov8" title="1">{
+                        ayirma = sl1[j] - sl2[j]
+                        s = strconv.FormatInt(ayirma, 10)
+                        natija += s
+                }</span> else<span class="cov8" title="1"> if sl1[j] &lt; sl2[j] </span><span class="cov8" title="1">{
+                        a := sl1[j] + int64(10)
+                        if j != 0 </span><span class="cov8" title="1">{
+                                sl1[j-1] = sl1[j-1] - 1
+                        }</span>
+                        <span class="cov8" title="1">ayirma = a - sl2[j]
+                        s = strconv.FormatInt(ayirma, 10)
+                        natija += s</span>
+                }
+
+        }
+        <span class="cov8" title="1">rune_arr := []rune(natija)
+        if string(rune_arr[len(rune_arr)-1]) == "0" </span><span class="cov8" title="1">{
+                rune_arr = rune_arr[:len(rune_arr)-1]
+        }</span>
+        <span class="cov8" title="1">var rev []rune
+        for i := len(rune_arr) - 1; i &gt;= 0; i-- </span><span class="cov8" title="1">{
+                rev = append(rev, rune_arr[i])
+        }</span>
+        <span class="cov8" title="1">natija = string(rev)
+        var j int
+        for k := len(natija) - 1; k &gt;= 0; k-- </span><span class="cov8" title="1">{
+                if string(natija[k]) == "0" </span><span class="cov8" title="1">{
+                        j++
+                }</span>
+        }
+        <span class="cov8" title="1">if j == len(natija) </span><span class="cov8" title="1">{
+                natija = "0"
+        }</span>
+        <span class="cov8" title="1">return</span>
+}
+
+//Multiply
+func Multiply(s1, s2 Bigint) (multy Bigint) <span class="cov8" title="1">{
+        if s1.Value[0] == '-' &amp;&amp; s2.Value[0] == '-' </span><span class="cov8" title="1">{
+                s1 = Bigint{Value: s1.Value[1:]}
+                s2 = Bigint{Value: s2.Value[1:]}
+                multy = mul(s1, s2)
+                return
+        }</span>
+        <span class="cov8" title="1">if s1.Value[0] == '-' </span><span class="cov8" title="1">{
+                s1 = Bigint{Value: s1.Value[1:]}
+                multy = mul(s1, s2)
+                multy.Value = "-" + multy.Value
+                return
+        }</span>
+        <span class="cov8" title="1">if s2.Value[0] == '-' </span><span class="cov8" title="1">{
+                s2 = Bigint{Value: s2.Value[1:]}
+                multy = mul(s1, s2)
+                multy.Value = "-" + multy.Value
+                return
+        }</span>
+        <span class="cov8" title="1">multy = mul(s1, s2)
+        return</span>
+}
+
+func mul(n1, n2 Bigint) Bigint <span class="cov8" title="1">{
+        num1 := n1.Value
+        num2 := n2.Value
+        if num1 == "0" || num2 == "0" </span><span class="cov8" title="1">{
+                return Bigint{Value: "0"}
+        }</span>
+        <span class="cov8" title="1">res := ""
+        result := Bigint{Value: "0"}
+        var slc []string
+        var remain int
+        if len(num1) &lt; len(num2) </span><span class="cov8" title="1">{
+                num1, num2 = num2, num1
+        }</span>
+        <span class="cov8" title="1">for i := len(num2) - 1; i &gt;= 0; i-- </span><span class="cov8" title="1">{
+                res = ""
+                remain = 0
+                for j := len(num1) - 1; j &gt;= 0; j-- </span><span class="cov8" title="1">{
+                        k1, _ := strconv.Atoi(string(num1[j]))
+                        k2, _ := strconv.Atoi(string(num2[i]))
+                        r := k1*k2 + remain
+                        remain = r / 10
+                        r = r % 10
+                        res = strconv.Itoa(r) + res
+                }</span>
+                <span class="cov8" title="1">if remain != 0 </span><span class="cov8" title="1">{
+                        res = strconv.Itoa(remain) + res
+                }</span>
+                <span class="cov8" title="1">for k := len(num2) - 1 - i; k &gt; 0; k-- </span><span class="cov8" title="1">{
+                        res += "0"
+                }</span>
+                <span class="cov8" title="1">slc = append(slc, res)</span>
+        }
+        <span class="cov8" title="1">var value Bigint
+        for _, v := range slc </span><span class="cov8" title="1">{
+                value = Bigint{Value: v}
+                result = Add(result, value)
+        }</span>
+        <span class="cov8" title="1">return result</span>
+}
+
+//Mod ...
+func Mod(a, b Bigint) Bigint <span class="cov8" title="1">{
+        err := errors.New("ZeroDivisionError: integer division or modulo by zero")
+        string1 := a.Value
+        string2 := b.Value
+        result := ""
+        if len(string1) &lt; len(string2) </span><span class="cov8" title="1">{
+                return Bigint{Value: string1}
+        }</span>
+        <span class="cov8" title="1">if string2 == "0" </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+        <span class="cov8" title="1">if string(string1[0]) == "-" &amp;&amp; string(string2[0]) != "-" </span><span class="cov8" title="1">{
+                result = mod(string1[1:], string2)
+                if result == "0" </span><span class="cov8" title="1">{
+                        return Bigint{Value: result}
+                }</span>
+                <span class="cov8" title="1">result = "-" + Sub(Bigint{Value: string2}, Bigint{Value: result}).Value
+                return Bigint{Value: result}</span>
+        }
+        <span class="cov8" title="1">if string(string1[0]) != "-" &amp;&amp; string(string2[0]) == "-" </span><span class="cov8" title="1">{
+                result = mod(string1, string2[1:])
+                if result == "0" </span><span class="cov8" title="1">{
+                        return Bigint{Value: result}
+                }</span>
+                <span class="cov8" title="1">result = "-" + Sub(Bigint{Value: string2[1:]}, Bigint{Value: result}).Value
+                return Bigint{Value: result}</span>
+        }
+        <span class="cov8" title="1">if string(string1[0]) == "-" &amp;&amp; string(string2[0]) == "-" </span><span class="cov8" title="1">{
+                result = "-" + mod(string1[1:], string2[1:])
+                return Bigint{Value: result}
+        }</span>
+        <span class="cov8" title="1">result = mod(string1, string2)
+        return Bigint{Value: result}</span>
+}
+
+//mod ...
+func mod(n1, n2 string) (resolve string) <span class="cov8" title="1">{
+        if len(n1) &lt; len(n2) </span><span class="cov0" title="0">{
+                resolve = n1
+                return
+        }</span>
+        <span class="cov8" title="1">var len = len(n1)
+        var num int
+        var rem = 0
+        for i := 0; i &lt; len; i++ </span><span class="cov8" title="1">{
+                num = rem*10 + int(n1[i]-'0')
+                d, _ := strconv.Atoi(n2)
+                rem = num % d
+        }</span>
+        <span class="cov8" title="1">resolve = strconv.Itoa(rem)
+        return</span>
+}
+
+func (x Bigint) Abs() Bigint <span class="cov8" title="1">{
+        if x.Value[0] == '-' </span><span class="cov8" title="1">{
+                return Bigint{
+                        Value: x.Value[1:],
+                }
+        }</span>
+        <span class="cov8" title="1">return Bigint{
+                Value: x.Value,
+        }</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>
